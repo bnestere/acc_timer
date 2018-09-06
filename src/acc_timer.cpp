@@ -2,6 +2,8 @@
 #include <chrono>
 #include <pthread.h>
 
+#include <cstring>
+
 // acc_timer headers
 #include "acc_timer.hpp"
 #include "sys_util.hpp"
@@ -58,11 +60,58 @@ thread_acc_timer_ctx_t *__get_my_thread_timer(acc_timer_ctx_t *ctx) {
   return my_acc_timer;
 }
 
+/**
+ * Finds the internal name of a timeable region.
+ * If region does not exist, this returns NULL
+ *
+ * @nullable
+ */
+char *get_timeable_region(acc_timer_ctx_t *ctx, char *name) {
+  vector<char*>::iterator cit;
+  for(cit = ctx->names_internal.begin(); cit != ctx->names_internal.end(); ++cit) {
+    char *internal_name = *cit;
+    if(strcmp(internal_name, name) == 0) {
+      // Names are equivalent, we have a match
+      cout << "Found internal name " << internal_name << endl;
+      return internal_name;
+    }
+  }
+  return NULL;
+}
+
+/*
+ * Add a timeable region if it does not already exist
+ */
+pthread_mutex_t names_mutex;
+char *try_add_timeable_region(acc_timer_ctx_t *ctx, char *name) {
+
+  char *internal_name = get_timeable_region(ctx, name);
+  if(internal_name == NULL) {
+    pthread_mutex_lock(&names_mutex);
+    internal_name = get_timeable_region(ctx, name);
+    if(internal_name == NULL) {
+
+      // If we make it here, we have to add the name internally
+      // TODO: Create destructor and free this
+      char *internal_copy = (char*) malloc(sizeof(char) * (strlen(name) + 1)); 
+      strcpy(internal_copy, name);
+      ctx->names_internal.push_back(internal_copy);
+      internal_name = internal_copy;
+    }
+
+    pthread_mutex_unlock(&names_mutex);
+  }
+
+  return internal_name;
+}
+
 void acc_timer_begin(acc_timer_ctx_t *ctx, char *id) {
   thread_acc_timer_ctx_t *my_acc_timer = __get_my_thread_timer(ctx);
   //map<char*,time_point<high_resolution_clock>> begin_times = my_acc_timer->begin_times;
+  
+  char *internal_id = try_add_timeable_region(ctx, id);
 
-  my_acc_timer->begin_times[id] = high_resolution_clock::now();
+  my_acc_timer->begin_times[internal_id] = high_resolution_clock::now();
 }
 
 void acc_timer_end(acc_timer_ctx_t *ctx, char *id) {
@@ -73,11 +122,15 @@ void acc_timer_end(acc_timer_ctx_t *ctx, char *id) {
   map<char*,time_point<high_resolution_clock>> begin_times = my_acc_timer->begin_times;
   map<char*,duration<double>> acc_times = my_acc_timer->accumulated_times;
 
-  if(begin_times.count(id) == 0) {
+  //TODO:  Probably implement a get_timeable_region
+  id = get_timeable_region(ctx, id);
+  cout << "End: found name " << id << endl;
+
+  if(id == NULL || begin_times.count(id) == 0) {
     /* 
      * Ending a key that doesn't exist..
      * TODO: Add an error message or something */
-    cout << "Begin times doesn't have id " << id << endl;
+    cout << "End times doesn't have id " << id << endl;
     return;
   }
 

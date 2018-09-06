@@ -41,6 +41,12 @@ typedef struct _acc_timer_ctx {
   long map_idx_ctr; // gives each thread an id to access its index in the vector
   std::map<long,int> tid_to_idx_map; // maps system tid to internal vector index
   std::vector<thread_acc_timer_ctx_t*> thread_timers;
+
+  /*
+   * Internally hold the names of the timeable periods
+   */
+  std::vector<char*> names_internal;
+
 } acc_timer_ctx_t;
 
 /*
