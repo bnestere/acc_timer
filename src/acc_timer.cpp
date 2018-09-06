@@ -118,7 +118,7 @@ void acc_write(acc_timer_ctx_t *ctx, std::ostream& out) {
       int idx_cmp = tidit->second;
       if(i == idx_cmp) {
         // This is the TID we are looking for
-        out << "Index, " << i << ", TID, " << tid << endl;
+        out << "TID " << tid << endl;
         break;
       }
     }
@@ -130,7 +130,7 @@ void acc_write(acc_timer_ctx_t *ctx, std::ostream& out) {
    for(amit = accmap.begin(); amit != accmap.end(); ++amit) {
       char* name = amit->first;
       duration<double> accdur = amit->second;
-      out << name << "(" << duration_cast<microseconds>(accdur).count() << "):";
+      out << name << "(Total: " << duration_cast<microseconds>(accdur).count() << "):";
 
       if(glbl_accs.count(name) == 0) {
         glbl_accs[name] = accdur;
