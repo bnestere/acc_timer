@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+#include <pthread.h>
 
 // acc_timer headers
 #include "acc_timer.hpp"
@@ -22,6 +23,8 @@ acc_timer_ctx_t *initialize_acc_timer(int n_threads) {
   return ctx;
 }
 
+pthread_mutex_t idx_mutex;
+
 /*
  * Gets the thread_timers index for the current thread 
  */
@@ -32,9 +35,14 @@ int __get_acc_thread_idx(acc_timer_ctx_t *ctx) {
   // Get the thread index
   if(ctx->tid_to_idx_map.count(tid) == 0) {
     // Tid doesn't exist, add and get index for tid
+    pthread_mutex_lock(&idx_mutex);
+
     idx = __sync_fetch_and_add(&ctx->map_idx_ctr, 1);
-    ctx->tid_to_idx_map.insert(pair<long,int>(tid, idx));
+    ctx->tid_to_idx_map[tid] = idx;
+
+    pthread_mutex_unlock(&idx_mutex);
   } else {
+    // IDX exists
     idx = ctx->tid_to_idx_map[tid];
   }
   return idx;
@@ -45,6 +53,7 @@ int __get_acc_thread_idx(acc_timer_ctx_t *ctx) {
  */
 thread_acc_timer_ctx_t *__get_my_thread_timer(acc_timer_ctx_t *ctx) {
   int thread_idx = __get_acc_thread_idx(ctx);
+  //printf("Thread idx is %d\n", thread_idx);
   thread_acc_timer_ctx_t *my_acc_timer = ctx->thread_timers.at(thread_idx);
   return my_acc_timer;
 }
@@ -138,6 +147,7 @@ void acc_write(acc_timer_ctx_t *ctx, std::ostream& out) {
       }
       out << endl;
    }
+   out << endl;// break between threads
   }
 
   out << endl << "Global Accumulations: " << endl;
