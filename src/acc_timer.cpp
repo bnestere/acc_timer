@@ -1,15 +1,61 @@
 #include <iostream>
+#include <fstream>
 #include <chrono>
 #include <pthread.h>
+#include <map>
+#include <vector>
+
 
 #include <cstring>
 
 // acc_timer headers
-#include "acc_timer.hpp"
+#include "acc_timer.h"
 #include "sys_util.hpp"
 
 using namespace std;
 using namespace std::chrono;
+
+
+/*
+ * data structure definitions
+ */
+/*
+ * Each thread will maintain its own begin/end and accumulation
+ */
+struct _thread_acc_timer_ctx {
+  /*
+   *    * Each thread maintains its own begin/end
+   *       */
+  std::map<char*, time_point<high_resolution_clock>> begin_times;
+
+  /*
+   *    * The accumulated times are global
+   *       */
+  std::map<char*, duration<double>> accumulated_times;
+
+  /*
+   *    * Maintains a time history of how long each duration took
+   *       * for each identifier
+   *          */
+  std::map<char*,std::vector<duration<double>>> time_history;
+
+};
+/*
+ * Accumulation of all threads individual begin/end
+ */
+struct _acc_timer_ctx {
+  int n_threads;
+  long map_idx_ctr; // gives each thread an id to access its index in the vector
+  std::map<long,int> tid_to_idx_map; // maps system tid to internal vector index
+  std::vector<thread_acc_timer_ctx_t*> thread_timers;
+
+  /*
+   *    * Internally hold the names of the timeable periods
+   *       */
+  std::vector<char*> names_internal;
+
+};
+
 
 acc_timer_ctx_t *initialize_acc_timer(int n_threads) {
   acc_timer_ctx_t *ctx = new acc_timer_ctx_t();
@@ -72,7 +118,6 @@ char *get_timeable_region(acc_timer_ctx_t *ctx, char *name) {
     char *internal_name = *cit;
     if(strcmp(internal_name, name) == 0) {
       // Names are equivalent, we have a match
-      cout << "Found internal name " << internal_name << endl;
       return internal_name;
     }
   }
@@ -124,7 +169,6 @@ void acc_timer_end(acc_timer_ctx_t *ctx, char *id) {
 
   //TODO:  Probably implement a get_timeable_region
   id = get_timeable_region(ctx, id);
-  cout << "End: found name " << id << endl;
 
   if(id == NULL || begin_times.count(id) == 0) {
     /* 
@@ -153,10 +197,11 @@ void acc_timer_end(acc_timer_ctx_t *ctx, char *id) {
 
 }
 
+
 /*
  * Write the accumulations
  */
-void acc_write(acc_timer_ctx_t *ctx, std::ostream& out) {
+void acc_write_stream(acc_timer_ctx_t *ctx, std::ostream& out) {
   int i;
   map<long,int> tidmap = ctx->tid_to_idx_map;
 
@@ -210,4 +255,12 @@ void acc_write(acc_timer_ctx_t *ctx, std::ostream& out) {
     duration<double> accdur = glit->second;
     out << name << ": " << duration_cast<microseconds>(accdur).count() << endl;
   }
+}
+/*
+ * Write the accumulations without output stream
+ */
+void acc_write(acc_timer_ctx_t *ctx) {
+  std::ofstream ofs("timings.out", std::ofstream::out);
+  acc_write_stream(ctx, ofs);
+  ofs.close();
 }

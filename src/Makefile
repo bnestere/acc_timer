@@ -1,12 +1,12 @@
 CC=gcc
-CXX=g++
+CXX=$(CC)
 CFLAGS=-g -O3
 LDFLAGS=-lm 
 
 SRC_FILES=acc_timer.cpp linux_sys_util.cpp
 
 LIB_FILENAME=libacc_timer.so
-HEADER_FILENAME=acc_timer.hpp
+HEADER_FILENAME=acc_timer.h
 
 PREFIX=/usr/local
 
