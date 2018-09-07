@@ -1,5 +1,5 @@
 #include <unistd.h>
-#include <acc_timer.hpp>
+#include <acc_timer.h>
 #include <iostream>
 #include <fstream>
 #include <pthread.h>
@@ -40,7 +40,5 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  std::ofstream ofs ("outs.out", std::ofstream::out);
-  acc_write(acc_timer, ofs);
-  ofs.close();
+  acc_write(acc_timer);
 }
