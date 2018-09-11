@@ -9,5 +9,5 @@ int main(int argc, char *argv[]) {
   sleep(1);
   acc_timer_end(timer, "Test timing");
   printf("end\n");
-  acc_write_default(timer);
+  acc_write(timer);
 }
