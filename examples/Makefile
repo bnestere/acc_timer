@@ -1,7 +1,7 @@
 CC=gcc
 CXX=g++
 CFLAGS=-g
-LDFLAGS=-lm -lacc_timer -pthread
+LDFLAGS=-lm -lacc_timer -pthread -lstdc++
 
 simple: simple.c
 	$(CC) $(CFLAGS) simple.c -o xsimple $(LDFLAGS)
