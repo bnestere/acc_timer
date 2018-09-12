@@ -178,7 +178,7 @@ void acc_timer_end(acc_timer_ctx_t *ctx, char *id) {
     return;
   }
 
-  auto diff = duration_cast<microseconds>(end_time - begin_times[id]);
+  auto diff = duration_cast<nanoseconds>(end_time - begin_times[id]);
 
   // Save this period into history
   if(my_acc_timer->time_history.count(id) == 0) {
@@ -192,7 +192,7 @@ void acc_timer_end(acc_timer_ctx_t *ctx, char *id) {
     my_acc_timer->accumulated_times[id] = diff;
   } else {
     // Add time
-    my_acc_timer->accumulated_times[id] = duration_cast<microseconds>(diff + acc_times[id]);
+    my_acc_timer->accumulated_times[id] = duration_cast<nanoseconds>(diff + acc_times[id]);
   }
 
 }
@@ -228,7 +228,10 @@ void acc_write_stream(acc_timer_ctx_t *ctx, std::ostream& out) {
    for(amit = accmap.begin(); amit != accmap.end(); ++amit) {
       char* name = amit->first;
       duration<double> accdur = amit->second;
-      out << name << "(Total: " << duration_cast<microseconds>(accdur).count() << "):";
+      long long total = duration_cast<nanoseconds>(accdur).count();
+      long long average = total/thread_ctx->time_history[name].size();
+
+      out << name << "(Total, Average: " << total << ", " << average << "): ";
 
       if(glbl_accs.count(name) == 0) {
         glbl_accs[name] = accdur;
@@ -241,7 +244,7 @@ void acc_write_stream(acc_timer_ctx_t *ctx, std::ostream& out) {
       for(hit = history.begin(); hit != history.end(); ++hit) {
 
         duration<double> val = *hit;
-        out << " " << duration_cast<microseconds>(val).count();
+        out << " " << duration_cast<nanoseconds>(val).count();
       }
       out << endl;
    }
@@ -253,7 +256,7 @@ void acc_write_stream(acc_timer_ctx_t *ctx, std::ostream& out) {
   for(glit = glbl_accs.begin(); glit != glbl_accs.end(); ++glit) {
     char *name = glit->first;
     duration<double> accdur = glit->second;
-    out << name << ": " << duration_cast<microseconds>(accdur).count() << endl;
+    out << name << ": " << duration_cast<nanoseconds>(accdur).count() << endl;
   }
 }
 /*
