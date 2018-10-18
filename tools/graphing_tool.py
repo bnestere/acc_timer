@@ -7,16 +7,16 @@ from collections import Counter
 import collections
 
 
-def graphing(unop_names, unop_vals, op_names, op_vals, kernel, thread_number, avg_or_total):
+def graphing(names, vals, kernel, avg_or_total):
 
     # data to plot
-    number_groups = len(unop_names)
+    number_groups = len(names)
 
     # create plot
     # fig, ax = plt.subplots()
     f = figure(figsize=(100,40))
 
-    names = unop_names
+    #names = unop_names
 
     index = np.arange(number_groups)
     bar_width = 0.2
@@ -28,36 +28,34 @@ def graphing(unop_names, unop_vals, op_names, op_vals, kernel, thread_number, av
     #axes.set_ylim([2000000,15000000])
 
     if avg_or_total == 'total':
-        bar1 = plt.bar(index, unop_vals, bar_width, alpha = opacity, color = 'g', label = 'Accumulation Unoptimized')
-        bar2 = plt.bar(index + bar_width, op_vals, bar_width, alpha = opacity, color='b', label = 'Accumulation Optimized')
+        bar1 = plt.bar(index, vals, bar_width, alpha = opacity, color = 'g', label = 'Accumulation Unoptimized')
+        #bar2 = plt.bar(index + bar_width, op_vals, bar_width, alpha = opacity, color='b', label = 'Accumulation Optimized')
         
-        plt.xlabel('Loop#', fontsize=80)
+        plt.xlabel('Region Name', fontsize=80)
         plt.ylabel('Time (as a Percentage)', fontsize=80)
-        plt.title('Average Global Accumulation, %s thread number: %d'%(kernel, thread_number), fontsize=80)
+        plt.title('Average Global Accumulation', fontsize=80)
         plt.xticks(index + bar_width/2, names, fontsize=60)
         plt.yticks(fontsize=80)
         plt.legend(fontsize=80)
 
         plt.tight_layout()
-        plt.show()
-
-        f.savefig("../PDFs/%s/%s_%s_%d.jpg"%(kernel, kernel, avg_or_total, thread_number), bbox_inches='tight')
+        #plt.show()
         
     elif avg_or_total == 'average':
-        bar1 = plt.bar(index, unop_vals, bar_width, alpha=opacity, color = 'g', label = 'Instance Unoptimized')
-        bar2 = plt.bar(index + bar_width, op_vals, bar_width, alpha = opacity, color = 'b', label = 'Instance Optimized')
+        bar1 = plt.bar(index, vals, bar_width, alpha=opacity, color = 'g', label = 'Instance Unoptimized')
+        #bar2 = plt.bar(index + bar_width, op_vals, bar_width, alpha = opacity, color = 'b', label = 'Instance Optimized')
 
-        plt.xlabel('Loop#', fontsize=80)
+        plt.xlabel('Region Name', fontsize=80)
         plt.ylabel('Time (in Nanoseconds)', fontsize=80)
-        plt.title('Average time, %s thread number: %d'%(kernel, thread_number), fontsize=80)
+        plt.title('Average time', fontsize=80)
         plt.xticks(index + bar_width/2, names, fontsize=60)
         plt.yticks(fontsize=80)
         plt.legend(fontsize=80)
 
         plt.tight_layout()
-        plt.show()
+        #plt.show()
 
-        f.savefig("../PDFs/%s/%s_%s_%d.jpg"%(kernel, kernel, avg_or_total, thread_number), bbox_inches='tight')
+    f.savefig("%s_%s.jpg"%(kernel, avg_or_total), bbox_inches='tight')
         
 
 def sort_vals(alist):
@@ -109,7 +107,7 @@ def get_arrs(dictionary):
 #     print(values)
 
 
-def get_dicts(arr_of_lines):
+def get_dicts(arr_of_lines,kernel):
     dict_of_avgs = {}
     dict_of_totals = {}
     dict_of_counts = {}
@@ -147,32 +145,33 @@ def get_dicts(arr_of_lines):
     return avgs_names, avgs_vals, totals_names, totals_vals
             
         
-def get_time_data(kernel, thread_number):  
-    print("start of thread: %d"%thread_number)
-    arr_of_lines_unop = []
+def get_time_data(kernel):  
     arr_of_lines_op = []
     
-    with open("./%s/src/time_files/orig_time/timings.out_%d_unop"%(kernel, thread_number), "r")as f:
-        arr_of_lines_unop = f.readlines()    
-    
-    with open("./%s/src/time_files/opt_time/timings.out_%d_op"%(kernel, thread_number), "r")as f:
-        arr_of_lines_op = f.readlines()
+    with open("%s.timings.out"%(kernel), "r")as f:
+        timing_lines = f.readlines()    
         
-    unop_avgs_names, unop_avgs_val, unop_totals_names, unop_totals_val = get_dicts(arr_of_lines_unop)
-    op_avgs_names, op_avgs_val, op_totals_names, op_totals_val = get_dicts(arr_of_lines_op)
-    
-    graphing(unop_avgs_names, unop_avgs_val, op_avgs_names, op_avgs_val, kernel, thread_number, "average")
-    graphing(unop_totals_names, unop_totals_val, op_totals_names, op_totals_val, kernel, thread_number, "total")
+    avgs_names, avgs_val, totals_names, totals_val = get_dicts(timing_lines,kernel )
+
+    graphing(avgs_names, avgs_val, kernel, "average")
+    graphing(totals_names, totals_val, kernel, "total")
+
     print("\n")
             
         
 if __name__ == '__main__':
+
+    if(len(sys.argv) < 2):
+        print("Usage: ./%s <benchmark_name>"%(sys.argv[0]))
+        exit(0)
+
+    get_time_data(sys.argv[1]);
     
-    kernels = ["radix", "lu_cb", "fft"]
-    for kernel in kernels:
-        number_of_threads = [1,2,4,8]
-        for thread_number in number_of_threads:
-            get_time_data(kernel, thread_number)  
+#    kernels = ["radix", "lu_cb", "fft"]
+#    for kernel in kernels:
+#        number_of_threads = [1,2,4,8]
+#        for thread_number in number_of_threads:
+#            get_time_data(kernel, thread_number)  
             
     print("done")
             
