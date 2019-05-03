@@ -58,13 +58,10 @@ struct _acc_timer_ctx {
 
 
 acc_timer_ctx_t *initialize_acc_timer(int n_threads) {
-  printf("Initializing with %d threads\n", n_threads);
   acc_timer_ctx_t *ctx = new acc_timer_ctx_t();
   ctx->n_threads = n_threads;
   ctx->map_idx_ctr = 0; // start with index 0
-  std::cout << "Ctx reserving, cur capacity " << ctx->thread_timers.capacity() << std::endl;
   ctx->thread_timers.reserve(n_threads);
-  std::cout << "Ctx reserved, cur capacity " << ctx->thread_timers.capacity() << std::endl;
 
   int i;
   for(i = 0; i < n_threads; i++) {
