@@ -1,6 +1,7 @@
 CC=gcc
 CXX=$(CC)
 CFLAGS=-g -O3
+CXXFLAGS=-std=c++11
 LDFLAGS=-lm 
 
 SRC_FILES=acc_timer.cpp linux_sys_util.cpp
@@ -15,7 +16,7 @@ default: build
 build: so
 
 so: $(SRC_FILES) $(HEADER_FILENAME)
-	$(CXX) -shared $(CFLAGS) -o $(LIB_FILENAME) -fPIC $(SRC_FILES) $(LDFLAGS)
+	$(CXX) -shared $(CFLAGS) $(CXXFLAGS) -o $(LIB_FILENAME) -fPIC $(SRC_FILES) $(LDFLAGS)
 
 install: so $(HEADER_FILENAME)
 	sudo cp $(LIB_FILENAME) $(PREFIX)/lib64
