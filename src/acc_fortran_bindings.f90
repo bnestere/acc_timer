@@ -1,5 +1,6 @@
 module acc_timer_m
   use, intrinsic :: iso_c_binding, only : c_int, c_ptr, c_null_ptr, c_associated, c_char, c_null_char
+  implicit none
   private
   interface
     function initialize_acc_timer_c(n_threads) result(acc_timer) bind(C, name="initialize_acc_timer")
@@ -7,7 +8,7 @@ module acc_timer_m
       implicit none
 
       !Argument list
-      integer(c_int) :: n_threads
+      integer(c_int), intent(in), value :: n_threads
 
       !function result
       type(c_ptr) :: acc_timer
@@ -64,7 +65,10 @@ module acc_timer_m
   contains
     subroutine Timer_Init(n_threads) 
       ! args
-      integer(c_int), intent(in) :: n_threads
+      integer(c_int), intent(in),value :: n_threads
+      !integer(c_int), value :: n_threads
+
+      print *, 'Got int value ', n_threads
 
       obj = initialize_acc_timer_c(n_threads)
       return

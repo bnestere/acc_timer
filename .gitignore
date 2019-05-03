@@ -1,5 +1,6 @@
 **/target
 **/*.so
 **/*.o
+**/*.mod
 **/timings.out
 **/x*
