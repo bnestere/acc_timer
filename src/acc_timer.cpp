@@ -4,7 +4,8 @@
 #include <pthread.h>
 #include <map>
 #include <vector>
-
+#include <iomanip>
+#include <sstream>
 
 #include <cstring>
 
@@ -259,11 +260,17 @@ void acc_write_stream(acc_timer_ctx_t *ctx, std::ostream& out) {
     out << name << ": " << duration_cast<nanoseconds>(accdur).count() << endl;
   }
 }
+
 /*
  * Write the accumulations without output stream
  */
+static int filecount = 0; //increment this
 void acc_write(acc_timer_ctx_t *ctx) {
-  std::ofstream ofs("timings.out", std::ofstream::out);
+
+  stringstream filename;
+  filename << "timings" << std::setw(4) << std::setfill('0') << filecount++ << ".out";
+
+  std::ofstream ofs(filename.str().c_str(), std::ofstream::out);
   acc_write_stream(ctx, ofs);
   ofs.close();
 }

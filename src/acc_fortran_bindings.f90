@@ -68,8 +68,6 @@ module acc_timer_m
       integer(c_int), intent(in),value :: n_threads
       !integer(c_int), value :: n_threads
 
-      print *, 'Got int value ', n_threads
-
       obj = initialize_acc_timer_c(n_threads)
       return
     end subroutine Timer_Init
