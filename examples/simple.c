@@ -10,4 +10,7 @@ int main(int argc, char *argv[]) {
   acc_timer_end(timer, "Test timing");
   printf("end\n");
   acc_write(timer);
+
+  double seconds = get_seconds_in_region(timer, "Test timing");
+  printf("Total time in region: %.8f seconds\n", seconds);
 }

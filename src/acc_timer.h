@@ -42,6 +42,15 @@ EXTC acc_timer_ctx_t *initialize_acc_timer(int n_threads);
 
 EXTC void destroy_acc_timer(acc_timer_ctx_t *timer_ctx);
 
+/*
+ * Get the total amount of time spent in a code region between all threads
+ *
+ * Arguments
+ *  timer_ctx: the timer context
+ *  region: The name of the region to get the amount of time spent in
+ */
+EXTC double get_seconds_in_region(acc_timer_ctx_t *timer_ctx, const char *region);
+
 #undef EXTC
 
 #endif

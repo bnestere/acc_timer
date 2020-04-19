@@ -14,7 +14,7 @@ def graphing(names, vals, kernel, avg_or_total):
 
     # create plot
     # fig, ax = plt.subplots()
-    f = figure(figsize=(100,40))
+    f = figure(figsize=(50,20))
 
     #names = unop_names
 
@@ -28,7 +28,7 @@ def graphing(names, vals, kernel, avg_or_total):
     #axes.set_ylim([2000000,15000000])
 
     if avg_or_total == 'total':
-        bar1 = plt.bar(index, vals, bar_width, alpha = opacity, color = 'g', label = 'Accumulation Unoptimized')
+        bar1 = plt.bar(index, vals, bar_width, alpha = opacity, color = 'g', label = 'Accumulation')
         #bar2 = plt.bar(index + bar_width, op_vals, bar_width, alpha = opacity, color='b', label = 'Accumulation Optimized')
         
         plt.xlabel('Region Name', fontsize=80)
@@ -42,7 +42,7 @@ def graphing(names, vals, kernel, avg_or_total):
         #plt.show()
         
     elif avg_or_total == 'average':
-        bar1 = plt.bar(index, vals, bar_width, alpha=opacity, color = 'g', label = 'Instance Unoptimized')
+        bar1 = plt.bar(index, vals, bar_width, alpha=opacity, color = 'g', label = 'Instance')
         #bar2 = plt.bar(index + bar_width, op_vals, bar_width, alpha = opacity, color = 'b', label = 'Instance Optimized')
 
         plt.xlabel('Region Name', fontsize=80)
@@ -55,7 +55,7 @@ def graphing(names, vals, kernel, avg_or_total):
         plt.tight_layout()
         #plt.show()
 
-    f.savefig("%s_%s.jpg"%(kernel, avg_or_total), bbox_inches='tight')
+    f.savefig("%s_%s.png"%(kernel, avg_or_total), bbox_inches='tight')
         
 
 def sort_vals(alist):

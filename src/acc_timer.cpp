@@ -261,6 +261,28 @@ void acc_write_stream(acc_timer_ctx_t *ctx, std::ostream& out) {
   }
 }
 
+double get_seconds_in_region(acc_timer_ctx_t *ctx, const char *region) {
+  int i;
+
+  double total = 0;
+  for(i = 0; i < ctx->n_threads; i++) {
+
+    thread_acc_timer_ctx_t *thread_ctx = ctx->thread_timers.at(i);
+    map<char*, duration<double>>::iterator amit;
+    map<char*, duration<double>> accmap = thread_ctx->accumulated_times;
+
+    for(amit = accmap.begin(); amit != accmap.end(); ++amit) {
+      char* name = amit->first;
+      if(strcmp(name, region) == 0) {
+        duration<double> accdur = amit->second;
+        total += duration_cast<seconds>(accdur).count();
+      }
+    }
+  }
+
+  return total;
+}
+
 /*
  * Write the accumulations without output stream
  */
