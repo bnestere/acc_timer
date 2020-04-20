@@ -275,7 +275,8 @@ double get_seconds_in_region(acc_timer_ctx_t *ctx, const char *region) {
       char* name = amit->first;
       if(strcmp(name, region) == 0) {
         duration<double> accdur = amit->second;
-        total += duration_cast<seconds>(accdur).count();
+        total += accdur.count();
+        //total += duration_cast<double>(accdur).count();
       }
     }
   }
