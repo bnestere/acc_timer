@@ -261,6 +261,10 @@ void acc_write_stream(acc_timer_ctx_t *ctx, std::ostream& out) {
   }
 }
 
+/*
+ * Get the seconds that have been spent in a region
+ *
+ */
 double get_seconds_in_region(acc_timer_ctx_t *ctx, const char *region) {
   int i;
 
@@ -276,7 +280,6 @@ double get_seconds_in_region(acc_timer_ctx_t *ctx, const char *region) {
       if(strcmp(name, region) == 0) {
         duration<double> accdur = amit->second;
         total += accdur.count();
-        //total += duration_cast<double>(accdur).count();
       }
     }
   }
